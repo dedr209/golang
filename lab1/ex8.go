@@ -1,6 +1,6 @@
 package main
 
-//Импорт нескольких пакетов
+// Импорт нескольких пакетов
 import (
 	"fmt"
 	"math"
@@ -21,4 +21,15 @@ func main() {
 
 	// Завдання.
 	// 1. Створіть змінні різних типів, використовуючи короткий запис та ініціалізацію за замовчуванням. Результат вивести в консоль
+	name := "Віталій"
+	age := 20
+	height := 1.75
+	isStudent := true
+
+	var defaultInt int
+	var defaultString string
+	var defaultBool bool
+
+	fmt.Printf("name=%s age=%d height=%.2f isStudent=%t\n", name, age, height, isStudent)
+	fmt.Printf("defaultInt=%d defaultString=%q defaultBool=%t\n", defaultInt, defaultString, defaultBool)
 }

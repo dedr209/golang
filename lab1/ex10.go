@@ -9,5 +9,8 @@ func main() {
 
 	// Завдання.
 	// 1. Вивести українську літеру 'Ї'
-	// 2. Пояснити призначення типу "rune"
+	// var ukrCharTest int8 = 'Ї' //overflowing
+	var ukrChar rune = 'Ї'
+	fmt.Printf("Code '%c' - %d\n", ukrChar, ukrChar)
+	// 2. Пояснити призначення типу "rune" rune  →  до 1 114 111
 }
