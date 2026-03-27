@@ -1,6 +1,9 @@
 package main
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 type LCG struct {
 	a, c, m, current int
@@ -51,4 +54,30 @@ func CalculateStats(frequencies map[int]int, k int) (float64, float64, float64) 
 }
 
 func main() {
+	n := 100
+	k := 10000
+	seed := 1
+
+	lcg := NewLCG(seed)
+	frequencies := make(map[int]int)
+
+	// Task 1: Generate Integer Sequence & Frequencies
+	for i := 0; i < k; i++ {
+		val := lcg.NextIntn(n)
+		frequencies[val]++
+	}
+
+	expectedValue, variance, stdDev := CalculateStats(frequencies, k)
+
+	fmt.Printf("--- Integer Sequence Statistics (K=%d, Range=[0, %d)) ---\n", k, n)
+	fmt.Printf("Mathematical Expectation M(X): %.4f\n", expectedValue)
+	fmt.Printf("Variance D(X):                 %.4f\n", variance)
+	fmt.Printf("Standard Deviation σ(X):       %.4f\n\n", stdDev)
+
+	// Task 2: Generate Float Sequence Sample
+	lcgFloat := NewLCG(seed)
+	fmt.Printf("--- Float Sequence Sample ---\n")
+	for i := 0; i < 5; i++ {
+		fmt.Printf("Float %d: %.6f\n", i+1, lcgFloat.NextFloat())
+	}
 }
