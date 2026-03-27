@@ -11,9 +11,9 @@ type LCG struct {
 
 func NewLCG(seed int) *LCG {
 	return &LCG{
-		a:       1103515245,
-		c:       12345,
-		m:       1 << 31, // 2^31
+		a:       1664525,
+		c:       1013904223,
+		m:       1 << 32, // 2^31
 		current: seed,
 	}
 }
@@ -54,8 +54,8 @@ func CalculateStats(frequencies map[int]int, k int) (float64, float64, float64) 
 }
 
 func main() {
-	n := 100
-	k := 10000
+	n := 150
+	k := 20000
 	seed := 1
 
 	lcg := NewLCG(seed)
