@@ -1,14 +1,15 @@
-# Lab 4 (GUI Skeleton)
+# Lab 4 (GUI Calculator)
 
-Minimal starter for the 4th lab assignment using `github.com/andlabs/ui`.
+This project now implements the required two calculation variants:
 
-## What is included
+- Variant 1: pure Go functions.
+- Variant 2: C implementation called from Go via cgo.
 
-- `package main`
-- Required import for `ui`
-- `main()` with `ui.Main(...)`
-- `initGUI()` that creates an empty window
-- `OnClosing` handler that quits the app
+## Files
+
+- `main.go` - GUI and variant selector.
+- `calculator/variant1.go` - Go calculation logic.
+- `calculator/variant2.go` + `calculator/price.c` - cgo wrapper and C logic.
 
 ## Run
 
@@ -17,5 +18,15 @@ go mod tidy
 go run .
 ```
 
-If your Linux system is missing GUI build dependencies for `libui`, install GTK3/WebKit2GTK development packages first.
+## Test calculation logic
 
+```bash
+go test ./calculator
+```
+
+## Build requirements
+
+`github.com/andlabs/ui` wraps a C library, so native toolchains and GUI development packages are required.
+
+- Linux: install GTK3/WebKit2GTK development packages and a C compiler.
+- Windows: install `mingw-w64` (required by the assignment) so cgo and `andlabs/ui` can compile.

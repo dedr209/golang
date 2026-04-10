@@ -5,12 +5,13 @@ import (
 	"strconv"
 
 	"github.com/andlabs/ui"
+	"lab4.com/calculator"
 	// "github.com/andlabs/ui/winmanifest" // Uncomment if compiling on Windows for native styling
 )
 
 func initGUI() {
 	// 1. Create the main window
-	window := ui.NewWindow("Калькулятор склопакета", 500, 300, false)
+	window := ui.NewWindow("Калькулятор склопакета", 500, 340, false)
 	window.SetMargined(true)
 
 	// 2. Create UI components (inputs)
@@ -27,6 +28,11 @@ func initGUI() {
 	glassCombo.Append("Однокамерний")
 	glassCombo.Append("Двокамерний")
 	glassCombo.SetSelected(0)
+
+	variantCombo := ui.NewCombobox()
+	variantCombo.Append("Варіант 1 (Go)")
+	variantCombo.Append("Варіант 2 (C через cgo)")
+	variantCombo.SetSelected(0)
 
 	windowsillCheck := ui.NewCheckbox("Підвіконня")
 
@@ -48,6 +54,8 @@ func initGUI() {
 	rightBox.SetPadded(true)
 	rightBox.Append(ui.NewLabel("Склопакет"), false)
 	rightBox.Append(glassCombo, false)
+	rightBox.Append(ui.NewLabel("Спосіб обчислення"), false)
+	rightBox.Append(variantCombo, false)
 	rightBox.Append(windowsillCheck, false)
 
 	topBox := ui.NewHorizontalBox()
@@ -73,33 +81,24 @@ func initGUI() {
 			return
 		}
 
-		area := width * height
-		matIdx := materialCombo.Selected()
-		glassIdx := glassCombo.Selected()
+		material := materialCombo.Selected()
+		glass := glassCombo.Selected()
+		withWindowsill := windowsillCheck.Checked()
 
-		var pricePerCm float64
-		if matIdx == 0 && glassIdx == 0 {
-			pricePerCm = 2.5
-		}
-		if matIdx == 0 && glassIdx == 1 {
-			pricePerCm = 3.0
-		}
-		if matIdx == 1 && glassIdx == 0 {
-			pricePerCm = 0.5
-		}
-		if matIdx == 1 && glassIdx == 1 {
-			pricePerCm = 1.0
-		}
-		if matIdx == 2 && glassIdx == 0 {
-			pricePerCm = 1.5
-		}
-		if matIdx == 2 && glassIdx == 1 {
-			pricePerCm = 2.0
+		var (
+			total float64
+			err   error
+		)
+
+		if variantCombo.Selected() == 0 {
+			total, err = calculator.CalculateWindowPriceGo(width, height, material, glass, withWindowsill)
+		} else {
+			total, err = calculator.CalculateWindowPriceC(width, height, material, glass, withWindowsill)
 		}
 
-		total := area * pricePerCm
-		if windowsillCheck.Checked() {
-			total += 350.0
+		if err != nil {
+			resultLabel.SetText("Помилка: " + err.Error())
+			return
 		}
 
 		resultLabel.SetText(fmt.Sprintf("%.2f грн", total))
