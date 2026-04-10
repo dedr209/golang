@@ -1,14 +1,19 @@
 package calculator
 
-// CalculateWindowPriceGo computes the total price entirely in Go.
-func CalculateWindowPriceGo(width, height float64, material, glass int, withWindowsill bool) (float64, error) {
-	if err := validateInput(width, height, material, glass); err != nil {
+// CalculateTourPriceGo computes the order total entirely in Go.
+func CalculateTourPriceGo(days int, country, season int, vouchers int, roomType int, withGuide bool) (float64, error) {
+	if err := validateInput(days, country, season, vouchers, roomType); err != nil {
 		return 0, err
 	}
 
-	total := width * height * priceTable[material][glass]
-	if withWindowsill {
-		total += windowsillFee
+	baseTotal := float64(days*vouchers) * dailyRateTable[country][season]
+	if roomType == RoomLux {
+		baseTotal *= 1 + luxMarkup
+	}
+
+	total := baseTotal
+	if withGuide {
+		total += float64(days) * guideDailyFee
 	}
 
 	return total, nil

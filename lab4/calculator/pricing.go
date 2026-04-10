@@ -3,35 +3,51 @@ package calculator
 import "fmt"
 
 const (
-	MaterialWood = iota
-	MaterialMetal
-	MaterialMetalPlastic
+	CountryBulgaria = iota
+	CountryGermany
+	CountryPoland
 )
 
 const (
-	GlassSingle = iota
-	GlassDouble
+	SeasonSummer = iota
+	SeasonWinter
 )
 
-const windowsillFee = 350.0
+const (
+	RoomStandard = iota
+	RoomLux
+)
 
-var priceTable = [3][2]float64{
-	{2.5, 3.0},
-	{0.5, 1.0},
-	{1.5, 2.0},
+const (
+	guideDailyFee = 50.0
+	luxMarkup     = 0.20
+)
+
+var dailyRateTable = [3][2]float64{
+	{100, 150},
+	{160, 200},
+	{120, 180},
 }
 
-func validateInput(width, height float64, material, glass int) error {
-	if width <= 0 || height <= 0 {
-		return fmt.Errorf("width and height must be positive")
+func validateInput(days int, country, season int, vouchers int, roomType int) error {
+	if days <= 0 {
+		return fmt.Errorf("days must be positive")
 	}
 
-	if material < 0 || material >= len(priceTable) {
-		return fmt.Errorf("unknown material index: %d", material)
+	if country < 0 || country >= len(dailyRateTable) {
+		return fmt.Errorf("unknown country index: %d", country)
 	}
 
-	if glass < 0 || glass >= len(priceTable[0]) {
-		return fmt.Errorf("unknown glass index: %d", glass)
+	if season < 0 || season >= len(dailyRateTable[0]) {
+		return fmt.Errorf("unknown season index: %d", season)
+	}
+
+	if vouchers <= 0 {
+		return fmt.Errorf("vouchers must be positive")
+	}
+
+	if roomType != RoomStandard && roomType != RoomLux {
+		return fmt.Errorf("unknown room type index: %d", roomType)
 	}
 
 	return nil

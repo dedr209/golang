@@ -1,22 +1,23 @@
 package calculator
 
 /*
-double calculate_window_price(double width, double height, int material, int glass, int with_windowsill);
+double calculate_tour_price(int days, int country, int season, int vouchers, int room_type, int with_guide);
 */
 import "C"
 
-// CalculateWindowPriceC computes the total price in C and returns the result to Go.
-func CalculateWindowPriceC(width, height float64, material, glass int, withWindowsill bool) (float64, error) {
-	if err := validateInput(width, height, material, glass); err != nil {
+// CalculateTourPriceC computes the order total in C and returns the result to Go.
+func CalculateTourPriceC(days int, country, season int, vouchers int, roomType int, withGuide bool) (float64, error) {
+	if err := validateInput(days, country, season, vouchers, roomType); err != nil {
 		return 0, err
 	}
 
-	total := C.calculate_window_price(
-		C.double(width),
-		C.double(height),
-		C.int(material),
-		C.int(glass),
-		C.int(boolToInt(withWindowsill)),
+	total := C.calculate_tour_price(
+		C.int(days),
+		C.int(country),
+		C.int(season),
+		C.int(vouchers),
+		C.int(roomType),
+		C.int(boolToInt(withGuide)),
 	)
 
 	return float64(total), nil
