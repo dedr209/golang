@@ -20,11 +20,20 @@ func initGUI() {
 	button := ui.NewButton("Submit")
 	label := ui.NewLabel("Sample label")
 
-	_ = entry
-	_ = combobox
-	_ = checkbox
-	_ = button
-	_ = label
+	leftBox := ui.NewVerticalBox()
+	rightBox := ui.NewVerticalBox()
+	mainBox := ui.NewHorizontalBox()
+
+	leftBox.Append(label, false)
+	leftBox.Append(entry, false)
+	leftBox.Append(combobox, false)
+
+	rightBox.Append(checkbox, false)
+	rightBox.Append(button, false)
+
+	mainBox.Append(leftBox, true)
+	mainBox.Append(rightBox, true)
+	window.SetChild(mainBox)
 
 	window.OnClosing(func(*ui.Window) bool {
 		ui.Quit()
