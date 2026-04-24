@@ -61,14 +61,14 @@ func (w *Worker) SetWorkPlace(workPlace string) {
 }
 
 func ReadWorkersArray() []Worker {
-	count := readInt("Enter workers count: ")
+	count := readIntInRange("Enter workers count: ", 1, 1000000)
 	workers := make([]Worker, 0, count)
 
 	for i := 0; i < count; i++ {
 		fmt.Printf("Worker #%d\n", i+1)
 		name := readString("Name: ")
-		year := readInt("Year: ")
-		month := readInt("Month: ")
+		year := readIntInRange("Year: ", 1, time.Now().Year())
+		month := readIntInRange("Month: ", 1, 12)
 		workPlace := readString("WorkPlace: ")
 		workers = append(workers, NewWorker(name, year, month, workPlace))
 	}
@@ -112,7 +112,7 @@ func GetWorkersInfo(workers []Worker) (maxSalary, minSalary int) {
 func readCompany() Company {
 	name := readString("Company name: ")
 	position := readString("Position: ")
-	salary := readInt("Salary: ")
+	salary := readIntInRange("Salary: ", 1, 1000000000)
 	return NewCompany(name, position, salary)
 }
 
@@ -136,6 +136,16 @@ func readInt(prompt string) int {
 			return value
 		}
 		fmt.Println("Enter a valid integer.")
+	}
+}
+
+func readIntInRange(prompt string, min, max int) int {
+	for {
+		value := readInt(prompt)
+		if value >= min && value <= max {
+			return value
+		}
+		fmt.Printf("Enter a value in range [%d..%d].\n", min, max)
 	}
 }
 
