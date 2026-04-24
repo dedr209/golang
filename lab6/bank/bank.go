@@ -1,5 +1,14 @@
 package bank
 
+import "errors"
+
+var (
+	ErrInvalidAmount         = errors.New("amount must be greater than zero")
+	ErrClientNotFound        = errors.New("client not found")
+	ErrInsufficientFunds     = errors.New("client has insufficient funds")
+	ErrInsufficientBankFunds = errors.New("bank has insufficient funds")
+)
+
 type Bank struct {
 	name      string
 	bankMoney float64
@@ -84,4 +93,67 @@ func (b *Bank) SetClients(clients map[string]*Client) {
 	for account, client := range clients {
 		b.clients[account] = client
 	}
+}
+
+func (b *Bank) Deposit(accountNumber string, amount float64) error {
+	if amount <= 0 {
+		return ErrInvalidAmount
+	}
+
+	client, ok := b.clients[accountNumber]
+	if !ok {
+		return ErrClientNotFound
+	}
+
+	client.cDeposit += amount
+	b.deposit += amount
+	b.bankMoney += amount
+
+	return nil
+}
+
+func (b *Bank) Withdraw(accountNumber string, amount float64) error {
+	if amount <= 0 {
+		return ErrInvalidAmount
+	}
+
+	client, ok := b.clients[accountNumber]
+	if !ok {
+		return ErrClientNotFound
+	}
+	if client.cDeposit < amount {
+		return ErrInsufficientFunds
+	}
+	if b.bankMoney < amount {
+		return ErrInsufficientBankFunds
+	}
+
+	client.cDeposit -= amount
+	b.deposit -= amount
+	b.bankMoney -= amount
+
+	return nil
+}
+
+// IssueCredit gives a client credit if the bank has enough available money.
+func (b *Bank) IssueCredit(accountNumber string, amount float64) error {
+	if amount <= 0 {
+		return ErrInvalidAmount
+	}
+
+	client, ok := b.clients[accountNumber]
+	if !ok {
+		return ErrClientNotFound
+	}
+	if b.bankMoney < amount {
+		return ErrInsufficientBankFunds
+	}
+
+	client.cCredit += amount
+	client.cDeposit += amount
+	b.credit += amount
+	b.deposit += amount
+	b.bankMoney -= amount
+
+	return nil
 }

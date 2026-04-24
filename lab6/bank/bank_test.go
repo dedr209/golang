@@ -1,6 +1,9 @@
 package bank
 
-import "testing"
+import (
+	"errors"
+	"testing"
+)
 
 func TestNewClientAndAccessors(t *testing.T) {
 	client := NewClient("John", "Doe", "AC-1", 1000, 250)
@@ -75,5 +78,56 @@ func TestNewBankAndClientManagement(t *testing.T) {
 	b.RemoveClient("AC-9")
 	if _, ok := b.GetClient("AC-9"); ok {
 		t.Fatalf("client should be removed")
+	}
+}
+
+func TestTransactionsAndValidation(t *testing.T) {
+	b := NewBank("Rules Bank", 10000, 500, 0)
+	client := NewClient("Alex", "Green", "TX-1", 500, 0)
+	b.AddClient(client)
+
+	if err := b.Deposit("TX-1", 200); err != nil {
+		t.Fatalf("deposit failed: %v", err)
+	}
+	if client.GetDeposit() != 700 || b.GetDeposit() != 700 || b.GetBankMoney() != 10200 {
+		t.Fatalf("deposit state is invalid")
+	}
+
+	if err := b.Withdraw("TX-1", 300); err != nil {
+		t.Fatalf("withdraw failed: %v", err)
+	}
+	if client.GetDeposit() != 400 || b.GetDeposit() != 400 || b.GetBankMoney() != 9900 {
+		t.Fatalf("withdraw state is invalid")
+	}
+
+	if err := b.IssueCredit("TX-1", 600); err != nil {
+		t.Fatalf("issue credit failed: %v", err)
+	}
+	if client.GetCredit() != 600 || client.GetDeposit() != 1000 {
+		t.Fatalf("client credit state is invalid")
+	}
+	if b.GetCredit() != 600 || b.GetDeposit() != 1000 || b.GetBankMoney() != 9300 {
+		t.Fatalf("bank credit state is invalid")
+	}
+
+	if err := b.Deposit("TX-1", 0); !errors.Is(err, ErrInvalidAmount) {
+		t.Fatalf("expected ErrInvalidAmount for zero deposit, got %v", err)
+	}
+	if err := b.Withdraw("UNKNOWN", 10); !errors.Is(err, ErrClientNotFound) {
+		t.Fatalf("expected ErrClientNotFound for unknown client, got %v", err)
+	}
+	if err := b.Withdraw("TX-1", 5000); !errors.Is(err, ErrInsufficientFunds) {
+		t.Fatalf("expected ErrInsufficientFunds, got %v", err)
+	}
+
+	poorBank := NewBank("Poor Bank", 50, 0, 0)
+	poorClient := NewClient("Tom", "Lee", "TX-2", 100, 0)
+	poorBank.AddClient(poorClient)
+
+	if err := poorBank.Withdraw("TX-2", 100); !errors.Is(err, ErrInsufficientBankFunds) {
+		t.Fatalf("expected ErrInsufficientBankFunds for withdraw, got %v", err)
+	}
+	if err := poorBank.IssueCredit("TX-2", 60); !errors.Is(err, ErrInsufficientBankFunds) {
+		t.Fatalf("expected ErrInsufficientBankFunds for credit issue, got %v", err)
 	}
 }
