@@ -1,6 +1,16 @@
 package main
 
-import "time"
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+)
+
+var inputReader = bufio.NewReader(os.Stdin)
+var currentCompany Company
 
 type Worker struct {
 	Name      string
@@ -48,6 +58,93 @@ func (w Worker) GetWorkPlace() string {
 
 func (w *Worker) SetWorkPlace(workPlace string) {
 	w.WorkPlace = workPlace
+}
+
+func ReadWorkersArray() []Worker {
+	count := readInt("Enter workers count: ")
+	workers := make([]Worker, 0, count)
+
+	for i := 0; i < count; i++ {
+		fmt.Printf("Worker #%d\n", i+1)
+		name := readString("Name: ")
+		year := readInt("Year: ")
+		month := readInt("Month: ")
+		workPlace := readString("WorkPlace: ")
+		workers = append(workers, NewWorker(name, year, month, workPlace))
+	}
+
+	return workers
+}
+
+func PrintWorker(worker Worker) {
+	fmt.Printf("Name: %s, Year: %d, Month: %d, WorkPlace: %s\n",
+		worker.GetName(), worker.GetYear(), worker.GetMonth(), worker.GetWorkPlace())
+}
+
+func PrintWorkers(workers []Worker) {
+	for i, worker := range workers {
+		fmt.Printf("Worker #%d: ", i+1)
+		PrintWorker(worker)
+	}
+}
+
+func GetWorkersInfo(workers []Worker) (maxSalary, minSalary int) {
+	if len(workers) == 0 {
+		return 0, 0
+	}
+
+	maxSalary = workers[0].GetTotalMoney(currentCompany)
+	minSalary = maxSalary
+
+	for _, worker := range workers[1:] {
+		salary := worker.GetTotalMoney(currentCompany)
+		if salary > maxSalary {
+			maxSalary = salary
+		}
+		if salary < minSalary {
+			minSalary = salary
+		}
+	}
+
+	return maxSalary, minSalary
+}
+
+func readCompany() Company {
+	name := readString("Company name: ")
+	position := readString("Position: ")
+	salary := readInt("Salary: ")
+	return NewCompany(name, position, salary)
+}
+
+func readString(prompt string) string {
+	for {
+		fmt.Print(prompt)
+		text := strings.TrimSpace(readLine())
+		if text != "" {
+			return text
+		}
+		fmt.Println("Input cannot be empty.")
+	}
+}
+
+func readInt(prompt string) int {
+	for {
+		fmt.Print(prompt)
+		text := strings.TrimSpace(readLine())
+		value, err := strconv.Atoi(text)
+		if err == nil {
+			return value
+		}
+		fmt.Println("Enter a valid integer.")
+	}
+}
+
+func readLine() string {
+	text, err := inputReader.ReadString('\n')
+	if err != nil {
+		return strings.TrimSpace(text)
+	}
+	return strings.TrimSpace(text)
 }
 
 func (w Worker) GetWorkerPosition(company Company) string {
