@@ -7,7 +7,6 @@ import "C"
 import "fmt"
 
 func CalculateWindowPriceC(width, height float64, material, chambers int, hasSill bool) (float64, error) {
-	// Додайте перевірку вхідних даних, як у варіанті на Go
 	if width <= 0 || height <= 0 {
 		return 0, fmt.Errorf("width and height must be positive")
 	}
