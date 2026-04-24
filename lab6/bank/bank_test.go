@@ -2,7 +2,10 @@ package bank
 
 import (
 	"errors"
+	"math"
+	"sync"
 	"testing"
+	"time"
 )
 
 func TestNewClientAndAccessors(t *testing.T) {
@@ -129,5 +132,40 @@ func TestTransactionsAndValidation(t *testing.T) {
 	}
 	if err := poorBank.IssueCredit("TX-2", 60); !errors.Is(err, ErrInsufficientBankFunds) {
 		t.Fatalf("expected ErrInsufficientBankFunds for credit issue, got %v", err)
+	}
+}
+
+func TestClientBotTerminatesOnCreditPayoff(t *testing.T) {
+	b := NewBank("Bot Bank", 5000, 100, 3)
+	client := NewClient("Nadia", "Fox", "BOT-1", 100, 3)
+	b.AddClient(client)
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go client.RunBot(b, BotConfig{
+		Interval:       5 * time.Millisecond,
+		MinAmount:      6,
+		MaxAmount:      6,
+		WithdrawChance: 0,
+	}, &wg)
+
+	done := make(chan struct{})
+	go func() {
+		wg.Wait()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(1 * time.Second):
+		t.Fatalf("client bot did not terminate in time")
+	}
+
+	_, credit, ok := b.GetClientBalances("BOT-1")
+	if !ok {
+		t.Fatalf("expected client BOT-1 to exist")
+	}
+	if math.Abs(credit) > 1e-9 {
+		t.Fatalf("expected client credit to be paid off, got %.8f", credit)
 	}
 }
