@@ -1,5 +1,7 @@
 package main
 
+import "time"
+
 type Worker struct {
 	Name      string
 	Year      int
@@ -46,6 +48,25 @@ func (w Worker) GetWorkPlace() string {
 
 func (w *Worker) SetWorkPlace(workPlace string) {
 	w.WorkPlace = workPlace
+}
+
+func (w Worker) GetWorkerPosition(company Company) string {
+	return company.GetPosition()
+}
+
+func (w Worker) GetWorkExperience() int {
+	now := time.Now()
+	startMonths := w.Year*12 + w.Month
+	currentMonths := now.Year()*12 + int(now.Month())
+	experience := currentMonths - startMonths
+	if experience < 0 {
+		return 0
+	}
+	return experience
+}
+
+func (w Worker) GetTotalMoney(company Company) int {
+	return w.GetWorkExperience() * company.GetSalary()
 }
 
 type Company struct {
