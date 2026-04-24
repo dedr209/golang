@@ -106,3 +106,17 @@ func (c Company) GetSalary() int {
 func (c *Company) SetSalary(salary int) {
 	c.Salary = salary
 }
+
+func (c Company) GetAnnualSalary() int {
+	return c.Salary * 12
+}
+
+func (c Company) HasPosition(position string) bool {
+	return c.Position == position
+}
+
+func (c *Company) RaiseSalary(amount int) {
+	if amount > 0 {
+		c.Salary += amount
+	}
+}
