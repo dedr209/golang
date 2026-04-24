@@ -104,8 +104,11 @@ func normalizeBotConfig(config BotConfig) BotConfig {
 	return config
 }
 
-// RunBot starts an infinite client loop and should be launched with the go keyword.
 func (c *Client) RunBot(b *Bank, config BotConfig, wg *sync.WaitGroup) {
+	c.RunBotWithStop(b, config, wg, nil)
+}
+
+func (c *Client) RunBotWithStop(b *Bank, config BotConfig, wg *sync.WaitGroup, stop <-chan struct{}) {
 	if wg != nil {
 		defer wg.Done()
 	}
@@ -114,9 +117,16 @@ func (c *Client) RunBot(b *Bank, config BotConfig, wg *sync.WaitGroup) {
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	accountNumber := c.GetAccountNumber()
 	initialCredit := c.GetCredit()
+	ticker := time.NewTicker(config.Interval)
+	defer ticker.Stop()
 
 	for {
-		time.Sleep(config.Interval)
+		select {
+		case <-stop:
+			fmt.Printf("client %s received stop signal, bot stopped\n", accountNumber)
+			return
+		case <-ticker.C:
+		}
 
 		amount := config.MinAmount
 		if config.MaxAmount > config.MinAmount {
